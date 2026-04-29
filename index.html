@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Retro Pixel Studio Pro</title>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.js"></script>
+	<base target="_blank">
+</head>
+
+<body class="light-mode">
+
+	<div id="app-layout">
+		<header role="banner">
+			<div class="brand-title">Retro Pixel Studio <span style="font-size:8px; vertical-align:super;">PRO</span></div>
+			<div class="d-flex gap-2" role="toolbar" aria-label="Main actions">
+				<button class="btn btn-retro btn-action-header" onclick="App.UI.openHelp()" title="Help (H)" aria-label="Open Help" accesskey="h"><i class="bi bi-question-circle" aria-hidden="true"></i></button>
+				<button class="btn btn-retro btn-action-header" onclick="App.UI.openExport()" title="Export Image" aria-label="Export Image"><i class="bi bi-save" aria-hidden="true"></i></button>
+				<button class="btn btn-retro btn-action-header" onclick="document.getElementById('fileInput').click()" title="Import Image" aria-label="Import Image"><i class="bi bi-image" aria-hidden="true"></i></button>
+				<button class="btn btn-retro btn-action-header" onclick="App.UI.openNewDoc()" title="New Document (Ctrl+N)" aria-label="New Document"><i class="bi bi-file-earmark" aria-hidden="true"></i></button>
+				<button class="btn btn-retro btn-action-header" onclick="App.UI.toggleTheme()" title="Toggle Theme (Light/Dark)" aria-label="Toggle Theme"><i class="bi bi-sun-fill" id="theme-icon" aria-hidden="true"></i></button>
+				<button class="btn btn-retro btn-action-header" onclick="App.UI.toggleFullscreen()" title="Toggle Fullscreen" aria-label="Toggle Fullscreen"><i class="bi bi-arrows-fullscreen" id="fullscreen-icon" aria-hidden="true"></i></button>
+			</div>
+			<input type="file" id="fileInput" accept="image/*,.gif" style="display:none" onchange="App.IO.handleImport(this)" aria-label="Select image file">
+			<input type="file" id="gifInput" accept=".gif" style="display:none" onchange="App.IO.handleGIFImport(this)" aria-label="Select animated GIF file">
+		</header>
+
+		<div id="workspace">
+			<aside role="complementary" aria-label="Tools and settings">
+				<div class="panel-section">
+					<label class="panel-label" id="tools-label">Tools</label>
+					<div class="tool-row" role="toolbar" aria-labelledby="tools-label">
+						<button class="btn btn-retro tool-btn active" id="tool-pencil" onclick="App.Tools.set('pencil')" aria-pressed="true" aria-label="Pencil (shortcut B)" title="Pencil (B)" accesskey="b"><i class="bi bi-pencil" aria-hidden="true"></i> Pencil</button>
+						<button class="btn btn-retro tool-btn" id="tool-eraser" onclick="App.Tools.set('eraser')" aria-pressed="false" aria-label="Eraser (shortcut E)" title="Eraser (E)" accesskey="e"><i class="bi bi-eraser" aria-hidden="true"></i> Eraser</button>
+						<button class="btn btn-retro tool-btn" id="tool-line" onclick="App.Tools.set('line')" aria-pressed="false" aria-label="Line (shortcut L)" title="Line (L)" accesskey="l"><i class="bi bi-slash-lg" aria-hidden="true"></i> Line</button>
+						<button class="btn btn-retro tool-btn" id="tool-rect" onclick="App.Tools.set('rect')" aria-pressed="false" aria-label="Rectangle (shortcut R)" title="Rectangle (R)" accesskey="r"><i class="bi bi-square" aria-hidden="true"></i> Box</button>
+						<button class="btn btn-retro tool-btn" id="tool-circle" onclick="App.Tools.set('circle')" aria-pressed="false" aria-label="Circle (shortcut O)" title="Circle (O)" accesskey="o"><i class="bi bi-circle" aria-hidden="true"></i> Circle</button>
+						<button class="btn btn-retro tool-btn" id="tool-fill" onclick="App.Tools.set('fill')" aria-pressed="false" aria-label="Fill (shortcut F)" title="Fill (F)" accesskey="f"><i class="bi bi-paint-bucket" aria-hidden="true"></i> Fill</button>
+						<button class="btn btn-retro tool-btn" id="tool-select" onclick="App.Tools.set('select')" aria-pressed="false" aria-label="Select (shortcut M)" title="Select (M)" accesskey="m"><i class="bi bi-bounding-box" aria-hidden="true"></i> Select</button>
+						<button class="btn btn-retro tool-btn" id="tool-picker" onclick="App.Tools.set('picker')" aria-pressed="false" aria-label="Color Picker (shortcut I)" title="Color Picker (I)" accesskey="i"><i class="bi bi-eyedropper" aria-hidden="true"></i> Pick</button>
+					</div>
+					<div class="brush-size-row">
+						<label for="brush-size" style="font-size:10px;">Size:</label>
+						<input type="range" id="brush-size" min="1" max="8" value="1" onchange="App.Brushes.setSize(this.value)" aria-label="Brush size (1-8 pixels)" title="Brush size ([ to decrease, ] to increase)">
+						<span id="brush-size-display" class="brush-size-display" aria-live="polite">1px</span>
+					</div>
+					<div class="brush-shape-row" role="group" aria-label="Brush shape">
+						<button class="btn btn-retro brush-shape-btn active" id="brush-square" onclick="App.Brushes.setShape('square')" aria-pressed="true" aria-label="Square Brush (shortcut S)" title="Square Brush (S)"><i class="bi bi-stop" aria-hidden="true"></i><span>SQR</span></button>
+						<button class="btn btn-retro brush-shape-btn" id="brush-circle" onclick="App.Brushes.setShape('circle')" aria-pressed="false" aria-label="Circle Brush (shortcut D)" title="Circle Brush (D)"><i class="bi bi-circle" aria-hidden="true"></i><span>CIR</span></button>
+						<button class="btn btn-retro brush-shape-btn" id="brush-diamond" onclick="App.Brushes.setShape('diamond')" aria-pressed="false" aria-label="Diamond Brush (shortcut G)" title="Diamond Brush (G)"><i class="bi bi-diamond-half" aria-hidden="true"></i><span>DMD</span></button>
+					</div>
+				</div>
+
+				<div class="panel-section">
+					<label class="panel-label" id="layers-label">Layers</label>
+					<div id="layers-panel" role="list" aria-labelledby="layers-label"></div>
+					<div class="layers-btn-row" role="group" aria-label="Layer controls">
+						<button class="btn btn-retro" onclick="App.Layers.add()" title="Add Layer" aria-label="Add Layer"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+						<button class="btn btn-retro" onclick="App.Layers.remove()" title="Remove Layer" aria-label="Remove Layer"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+						<button class="btn btn-retro" onclick="App.Layers.moveUp()" title="Move Up" aria-label="Move Layer Up"><i class="bi bi-arrow-up" aria-hidden="true"></i></button>
+						<button class="btn btn-retro" onclick="App.Layers.moveDown()" title="Move Down" aria-label="Move Layer Down"><i class="bi bi-arrow-down" aria-hidden="true"></i></button>
+						<button class="btn btn-retro" onclick="App.Layers.mergeDown()" title="Merge Down" aria-label="Merge Layer Down"><i class="bi bi-layers" aria-hidden="true"></i></button>
+					</div>
+				</div>
+
+				<div class="panel-section">
+					<label class="panel-label">History</label>
+					<div class="d-flex gap-2" role="group" aria-label="History">
+						<button class="btn btn-retro" onclick="App.History.undo()" style="width:50%;" aria-label="Undo (Ctrl+Z)" role="button"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Undo</button>
+						<button class="btn btn-retro" onclick="App.History.redo()" style="width:50%;" aria-label="Redo (Ctrl+Y)" role="button"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Redo</button>
+					</div>
+				</div>
+
+				<div class="panel-section">
+					<label class="panel-label">Edit</label>
+					<div class="edit-row" role="toolbar" aria-label="Edit tools">
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.copy()" id="btn-copy" aria-label="Copy Selection (Ctrl+C)" role="button"><i class="bi bi-clipboard" aria-hidden="true"></i> Copy</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.cut()" id="btn-cut" aria-label="Cut Selection (Ctrl+X)" role="button"><i class="bi bi-scissors" aria-hidden="true"></i> Cut</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.paste()" id="btn-paste" aria-label="Paste (Ctrl+V)" role="button"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Paste</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.rotate(90)" aria-label="Rotate 90 degrees" role="button"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Rotate</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.flip('h')" aria-label="Flip Horizontal" role="button"><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Flip H</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.flip('v')" aria-label="Flip Vertical" role="button"><i class="bi bi-arrow-down-up" aria-hidden="true"></i> Flip V</button>
+						<button class="btn btn-retro edit-btn" id="btn-mirror-h" onclick="App.Mirror.toggle('h')" aria-pressed="false" aria-label="Horizontal Mirror" role="button"><i class="bi bi-symmetry-horizontal" aria-hidden="true"></i> H Mirror</button>
+						<button class="btn btn-retro edit-btn" id="btn-mirror-v" onclick="App.Mirror.toggle('v')" aria-pressed="false" aria-label="Vertical Mirror" role="button"><i class="bi bi-symmetry-vertical" aria-hidden="true"></i> V Mirror</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.invert()" aria-label="Invert Colors" role="button"><i class="bi bi-circle-half" aria-hidden="true"></i> Invert</button>
+						<button class="btn btn-retro edit-btn" onclick="App.Actions.deleteSelection()" id="btn-delete" style="display:none;" aria-label="Delete Selection (Delete)" role="button"><i class="bi bi-trash" aria-hidden="true"></i> Delete</button>
+					</div>
+					<button class="btn btn-retro btn-danger" onclick="App.Actions.clear()" style="margin-top:8px;" aria-label="Clear All Canvas" role="button"><i class="bi bi-trash-fill" aria-hidden="true"></i> Clear All</button>
+					<button class="btn btn-retro" onclick="App.Actions.convertToPalette()" style="background:#ff6b6b;margin-top:2px;" aria-label="Convert to Palette Colors" role="button"><i class="bi bi-palette" aria-hidden="true"></i> To Palette</button>
+				</div>
+
+				<div class="panel-section">
+					<label class="panel-label">Canvas</label>
+					<div class="control-row">
+						<span id="size-label">Size:</span>
+						<label for="canvas-size-select" class="sr-only">Taille du canvas</label>
+						<select id="canvas-size-select" class="form-select" style="width: 120px;" onchange="App.Canvas.resize(this.value)" aria-labelledby="size-label" title="Taille du canvas en pixels">
+							<option value="8">8x8</option>
+							<option value="16">16x16</option>
+							<option value="24">24x24</option>
+							<option value="32">32x32</option>
+							<option value="48">48x48</option>
+							<option value="64" selected>64x64</option>
+							<option value="96">96x96</option>
+							<option value="128">128x128</option>
+						</select>
+					</div>
+					<div class="control-row">
+						<span id="zoom-label">Zoom:</span>
+						<label for="zoom-select" class="sr-only">Niveau de zoom</label>
+						<select class="form-select" style="width: 120px;" id="zoom-select" onchange="App.Canvas.zoom(this.value)" aria-labelledby="zoom-label" title="Niveau de zoom (molette pour ajuster)">
+							<option value="4">4x</option>
+							<option value="8">8x</option>
+							<option value="10" selected>10x</option>
+							<option value="12">12x</option>
+							<option value="16">16x</option>
+							<option value="20">20x</option>
+							<option value="24">24x</option>
+							<option value="32">32x</option>
+						</select>
+					</div>
+					<div class="control-row" role="group" aria-label="Display options">
+						<label title="Show grid"><input type="checkbox" id="check-grid" checked onchange="App.UI.toggleGrid()" aria-label="Show grid"> Grid</label>
+						<label title="CRT scanlines effect"><input type="checkbox" id="check-crt" onchange="App.UI.toggleCRT()" aria-label="CRT scanlines effect"> CRT</label>
+					</div>
+					<div class="control-row">
+						<label title="Auto-save"><input type="checkbox" id="check-autosave" checked onchange="App.AutoSave.toggle()" aria-label="Enable auto-save"> Auto-save</label>
+						<span class="autosave-indicator" id="autosave-status" aria-live="polite"></span>
+					</div>
+				</div>
+			</aside>
+
+			<section id="canvas-viewport" role="main" aria-label="Drawing area">
+				<div id="canvas-stack">
+					<canvas id="main-canvas" width="64" height="64" aria-label="Drawing canvas"></canvas>
+					<canvas id="grid-canvas" width="640" height="640" aria-hidden="true"></canvas>
+					<div id="selection-box" aria-hidden="true"></div>
+					<div id="scanlines" style="display:none;" aria-hidden="true"></div>
+				</div>
+			</section>
+
+			<aside class="right-panel" role="complementary" aria-label="Preview and palette">
+				<div class="panel-section" style="text-align:center;">
+					<label class="panel-label" id="preview-label">Preview</label>
+					<div class="preview-mini" aria-labelledby="preview-label">
+						<canvas id="preview-canvas" width="64" height="64" style="width:100%; height:100%;" aria-label="Drawing preview at actual size"></canvas>
+					</div>
+					<div class="control-row" style="font-size:14px; color:var --c64-text;">
+						<span id="pos-display" aria-label="Cursor position X,Y" title="Cursor position">0,0</span>
+						<span id="size-display" aria-label="Canvas dimensions" title="Canvas dimensions">64x64</span>
+					</div>
+				</div>
+
+				<div class="panel-section" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+					<label class="panel-label" id="palette-label">Palette</label>
+					<label for="palette-select" class="sr-only">Select a palette</label>
+					<select id="palette-select" class="form-select mb-2" onchange="App.Palette.load(this.value)" aria-labelledby="palette-label" title="Select a color palette"></select>
+					<div style="flex:1; overflow-y:auto;">
+						<div id="palette-grid" class="palette-grid" role="listbox" aria-label="Palette colors"></div>
+					</div>
+					<div id="palette-info" class="palette-info" aria-live="polite"></div>
+				</div>
+
+				<div class="panel-section">
+					<label class="panel-label">Transparency</label>
+					<div class="control-row">
+						<input type="checkbox" id="use-trans" onchange="App.State.transEnabled = this.checked" aria-label="Enable transparency">
+						<label for="use-trans" title="Enable transparency color">Enable</label>
+					</div>
+					<label style="font-size:12px;" for="trans-helper">Target:</label>
+					<div id="trans-helper" role="button" tabindex="0" aria-label="Transparency color - click to set" title="Click to set transparency color"></div>
+				</div>
+			</aside>
+
+		</div>
+
+		<div id="animation-timeline" class="animation-timeline" role="toolbar" aria-label="Animation timeline">
+			<div class="timeline-controls" role="group" aria-label="Playback controls">
+				<button class="btn btn-retro" onclick="App.Animation.play()" title="Play (Space)" id="anim-play" aria-label="Play animation"><i class="bi bi-play-fill" aria-hidden="true"></i></button>
+				<button class="btn btn-retro" onclick="App.Animation.stop()" title="Stop" id="anim-stop" aria-label="Stop animation"><i class="bi bi-stop-fill" aria-hidden="true"></i></button>
+				<button class="btn btn-retro" onclick="App.Animation.addFrame()" title="Add Frame" aria-label="Add frame"><i class="bi bi-plus" aria-hidden="true"></i></button>
+				<button class="btn btn-retro" onclick="App.Animation.removeFrame()" title="Remove Frame" aria-label="Remove frame"><i class="bi bi-dash" aria-hidden="true"></i></button>
+				<button class="btn btn-retro" onclick="App.Animation.duplicateFrame()" title="Duplicate Frame" aria-label="Duplicate frame"><i class="bi bi-layers" aria-hidden="true"></i></button>
+			</div>
+			<div style="display:flex;align-items:center;gap:8px;">
+				<label for="anim-fps" style="font-size:10px;white-space:nowrap;">FPS:</label>
+				<select id="anim-fps" class="form-select" style="width:60px;font-size:10px;padding:2px;" onchange="App.Animation.setFPS(this.value)" aria-label="Frames per second">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="5">5</option>
+					<option value="10">10</option>
+					<option value="12" selected>12</option>
+					<option value="15">15</option>
+					<option value="24">24</option>
+				</select>
+				<label style="font-size:10px;margin-left:8px;" title="Show previous frame as overlay"><input type="checkbox" id="anim-onion" onchange="App.Animation.toggleOnion()" aria-label="Onion Skin - Show previous frame"> Onion</label>
+				<label style="font-size:10px;margin-left:8px;" title="Loop animation"><input type="checkbox" id="anim-loop" checked onchange="App.Animation.toggleLoop()" aria-label="Loop animation"> Loop</label>
+			</div>
+			<div id="frames-container" style="display:flex;gap:4px;flex:1;overflow-x:auto;padding:4px;" role="list" aria-label="Animation frames"></div>
+			<div style="display:flex;align-items:center;gap:4px;margin-left:8px;" role="group" aria-label="Frame navigation">
+				<button class="btn btn-retro" onclick="App.Animation.prevFrame()" title="Previous Frame (Left Arrow)" style="padding:4px 8px;" aria-label="Previous frame"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+				<span id="frame-indicator" style="font-size:10px;min-width:50px;text-align:center;font-family:'Press Start 2P';" aria-live="polite" aria-label="Current frame">1/1</span>
+				<button class="btn btn-retro" onclick="App.Animation.nextFrame()" title="Next Frame (Right Arrow)" style="padding:4px 8px;" aria-label="Next frame"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+			</div>
+			<div style="display:flex;gap:4px;margin-left:8px;" role="group" aria-label="Import/Export GIF">
+				<button class="btn btn-retro" onclick="document.getElementById('gifInput').click()" title="Import Animated GIF" style="padding:8px 12px;font-size:9px;" aria-label="Import animated GIF"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i> Import GIF</button>
+				<button class="btn btn-retro" onclick="App.Animation.exportGIF()" title="Export Animated GIF" style="padding:8px 12px;font-size:9px;" aria-label="Export animated GIF"><i class="bi bi-file-earmark-image" aria-hidden="true"></i> Export GIF</button>
+			</div>
+		</div>
+
+		<footer role="contentinfo">
+			<span style="font-family:'Press Start 2P'; font-size:10px; color:var(--c64-text);"><span class="status-indicator" aria-hidden="true"></span>STATUS: READY</span>
+			<span id="tool-indicator" class="tool-indicator" aria-live="polite"><span class="tool-indicator-label">TOOL:</span><span id="current-tool-name">PENCIL</span></span>
+			<span id="footer-text" style="font-family:'Press Start 2P'; font-size:8px;"></span>
+		</footer>
+	</div>
+
+	<div id="export-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+		<div class="modal-box">
+			<div class="modal-title" id="export-modal-title">EXPORT IMAGE</div>
+			<label for="export-fmt" class="sr-only">Format d'export</label>
+			<select id="export-fmt" class="form-select mb-2">
+				<option value="image/png">PNG (Transparent)</option>
+				<option value="image/jpeg">JPEG (Standard)</option>
+				<option value="image/webp">WEBP (Modern)</option>
+				<option value="image/bmp">BMP (Bitmap)</option>
+				<option value="image/x-icon">ICO (Favicon)</option>
+			</select>
+			<div class="d-flex gap-2 mt-1">
+				<button class="btn btn-retro" onclick="App.IO.export()" aria-label="Save image" role="button">SAVE</button>
+				<button class="btn btn-retro" onclick="App.UI.closeModal('export-modal')" style="background:#888;" aria-label="Cancel" role="button">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="newdoc-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="newdoc-modal-title">
+		<div class="modal-box">
+			<div class="modal-title" id="newdoc-modal-title">NEW DOCUMENT</div>
+			<div class="control-row mb-2">
+				<span id="newdoc-size-label">Size:</span>
+				<label for="newdoc-size" class="sr-only">Taille du nouveau document</label>
+				<select id="newdoc-size" class="form-select" style="width: 120px;" aria-labelledby="newdoc-size-label">
+					<option value="8">8x8</option>
+					<option value="16">16x16</option>
+					<option value="32">32x32</option>
+					<option value="64" selected>64x64</option>
+					<option value="128">128x128</option>
+				</select>
+			</div>
+			<div class="d-flex gap-2 mt-1">
+				<button class="btn btn-retro" onclick="App.Actions.createNewDoc()" style="background:#28a745;" aria-label="Create document" role="button">Create</button>
+				<button class="btn btn-retro" onclick="App.UI.closeModal('newdoc-modal')" style="background:#888;" aria-label="Cancel" role="button">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="clear-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="clear-modal-title">
+		<div class="modal-box">
+			<div class="modal-title" id="clear-modal-title">CLEAR CANVAS</div>
+			<p style="font-family:'VT323', monospace; font-size:18px; margin:15px 0;">Are you sure you want to clear the entire canvas?</p>
+			<p style="font-family:'VT323', monospace; font-size:14px; margin:10px 0; opacity:0.8;">This will clear all animation frames and reset the project.</p>
+			<div class="d-flex gap-2 mt-1">
+				<button class="btn btn-retro btn-danger" onclick="App.Actions.confirmClear()" aria-label="Clear canvas" role="button">Clear All</button>
+				<button class="btn btn-retro" onclick="App.UI.closeModal('clear-modal')" style="background:#888;" aria-label="Cancel" role="button">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="import-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+		<div class="modal-box">
+			<div class="modal-title" id="import-modal-title">IMPORT IMAGE</div>
+			<div id="import-preview-container" style="margin:10px 0;">
+				<canvas id="import-preview-canvas" style="max-width:100%; max-height:150px; border:2px solid #000;"></canvas>
+			</div>
+			<div style="margin:10px 0;">
+				<span id="import-dimensions" style="font-family:'VT323', monospace; font-size:16px;"></span>
+				<span id="import-current-size" style="font-family:'VT323', monospace; font-size:14px; opacity:0.7; margin-left:10px;"></span>
+			</div>
+			<div style="margin:15px 0;">
+				<label class="panel-label" style="font-size:10px;">Resize Options:</label>
+				<div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-resize" value="fit-canvas" checked>
+						<span style="font-family:'VT323', monospace; font-size:16px;">Fit to current canvas</span>
+					</label>
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-resize" value="resize-canvas">
+						<span style="font-family:'VT323', monospace; font-size:16px;">Resize canvas to image</span>
+					</label>
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-resize" value="original">
+						<span style="font-family:'VT323', monospace; font-size:16px;">Center image (no resize)</span>
+					</label>
+				</div>
+			</div>
+			<div class="d-flex gap-2 mt-1">
+				<button class="btn btn-retro" onclick="App.IO.confirmImport()" style="background:#28a745;" aria-label="Import" role="button">Import</button>
+				<button class="btn btn-retro" onclick="App.UI.closeModal('import-modal')" style="background:#888;" aria-label="Cancel" role="button">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="import-gif-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-gif-modal-title">
+		<div class="modal-box">
+			<div class="modal-title" id="import-gif-modal-title">IMPORT ANIMATED GIF</div>
+			<div id="import-gif-preview-container" style="margin:10px 0;">
+				<canvas id="import-gif-preview-canvas" style="max-width:100%; max-height:150px; border:2px solid #000;"></canvas>
+			</div>
+			<div style="margin:10px 0;">
+				<span id="import-gif-dimensions" style="font-family:'VT323', monospace; font-size:16px;"></span>
+				<span id="import-gif-frames" style="font-family:'VT323', monospace; font-size:14px; opacity:0.7; margin-left:10px;"></span>
+			</div>
+			<div style="margin:15px 0;">
+				<label class="panel-label" style="font-size:10px;">Resize Options:</label>
+				<div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-gif-resize" value="fit-canvas" checked>
+						<span style="font-family:'VT323', monospace; font-size:16px;">Fit to current canvas</span>
+					</label>
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-gif-resize" value="resize-canvas">
+						<span style="font-family:'VT323', monospace; font-size:16px;">Resize canvas to GIF</span>
+					</label>
+					<label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+						<input type="radio" name="import-gif-resize" value="original">
+						<span style="font-family:'VT323', monospace; font-size:16px;">Center GIF (no resize)</span>
+					</label>
+				</div>
+			</div>
+			<div class="d-flex gap-2 mt-1">
+				<button class="btn btn-retro" onclick="App.IO.confirmGifImport()" style="background:#28a745;" aria-label="Import" role="button">Import GIF</button>
+				<button class="btn btn-retro" onclick="App.UI.closeModal('import-gif-modal')" style="background:#888;" aria-label="Cancel" role="button">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="help-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+		<div class="modal-box help-modal">
+			<div class="modal-title" id="help-modal-title">HELP & COMMANDS</div>
+			<div class="help-content">
+				<div class="help-section">
+					<div class="help-title">Tools</div>
+					<div class="help-item"><span>Pencil</span><span class="help-key">B</span></div>
+					<div class="help-item"><span>Eraser</span><span class="help-key">E</span></div>
+					<div class="help-item"><span>Line</span><span class="help-key">L</span></div>
+					<div class="help-item"><span>Box / Rectangle</span><span class="help-key">R</span></div>
+					<div class="help-item"><span>Circle / Ellipse</span><span class="help-key">O</span></div>
+					<div class="help-item"><span>Fill / Paint Bucket</span><span class="help-key">F</span></div>
+					<div class="help-item"><span>Select / Marquee</span><span class="help-key">M</span></div>
+					<div class="help-item"><span>Color Picker / Eyedropper</span><span class="help-key">I</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Brush Settings</div>
+					<div class="help-item"><span>Brush Size</span><span class="help-key">1-8px</span></div>
+					<div class="help-item"><span>Decrease Size</span><span class="help-key">[</span></div>
+					<div class="help-item"><span>Increase Size</span><span class="help-key">]</span></div>
+					<div class="help-item"><span>Square Brush</span><span class="help-key">S</span></div>
+					<div class="help-item"><span>Circle Brush</span><span class="help-key">D</span></div>
+					<div class="help-item"><span>Diamond Brush</span><span class="help-key">G</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Edit Commands</div>
+					<div class="help-item"><span>Undo</span><span class="help-key">Ctrl+Z</span></div>
+					<div class="help-item"><span>Redo</span><span class="help-key">Ctrl+Y</span></div>
+					<div class="help-item"><span>Copy Selection</span><span class="help-key">Ctrl+C</span></div>
+					<div class="help-item"><span>Paste</span><span class="help-key">Ctrl+V</span></div>
+					<div class="help-item"><span>Cut Selection</span><span class="help-key">Ctrl+X</span></div>
+					<div class="help-item"><span>New Document</span><span class="help-key">Ctrl+N</span></div>
+					<div class="help-item"><span>Delete Selection</span><span class="help-key">Delete</span></div>
+					<div class="help-item"><span>Clear All Canvas</span><span class="help-key">Shift+Del</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Mirror Mode</div>
+					<div class="help-item"><span>Horizontal Mirror</span><span class="help-key">J</span></div>
+					<div class="help-item"><span>Vertical Mirror</span><span class="help-key">K</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Animation</div>
+					<div class="help-item"><span>Play / Pause</span><span class="help-key">Space</span></div>
+					<div class="help-item"><span>Previous Frame</span><span class="help-key">←</span></div>
+					<div class="help-item"><span>Next Frame</span><span class="help-key">→</span></div>
+					<div class="help-item"><span>Add Frame</span><span class="help-key">+ button</span></div>
+					<div class="help-item"><span>Remove Frame</span><span class="help-key">- button</span></div>
+					<div class="help-item"><span>Duplicate Frame</span><span class="help-key">layers btn</span></div>
+					<div class="help-item"><span>Onion Skin</span><span class="help-key">checkbox</span></div>
+					<div class="help-item"><span>Loop Animation</span><span class="help-key">checkbox</span></div>
+					<div class="help-item"><span>FPS Speed</span><span class="help-key">1-24 fps</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Import / Export</div>
+					<div class="help-item"><span>Import Image</span><span class="help-key">PNG/JPG/GIF/BMP</span></div>
+					<div class="help-item"><span>Import Animated GIF</span><span class="help-key">Import GIF btn</span></div>
+					<div class="help-item"><span>Export Image</span><span class="help-key">PNG/JPEG/WEBP/BMP/ICO</span></div>
+					<div class="help-item"><span>Export Animated GIF</span><span class="help-key">Export GIF btn</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Layers System</div>
+					<div class="help-item"><span>Add Layer</span><span class="help-key">+ button</span></div>
+					<div class="help-item"><span>Remove Layer</span><span class="help-key">- button</span></div>
+					<div class="help-item"><span>Move Layer Up</span><span class="help-key">↑ button</span></div>
+					<div class="help-item"><span>Move Layer Down</span><span class="help-key">↓ button</span></div>
+					<div class="help-item"><span>Merge Down</span><span class="help-key">merge btn</span></div>
+					<div class="help-item"><span>Toggle Visibility</span><span class="help-key">checkbox</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Canvas Options</div>
+					<div class="help-item"><span>Canvas Size</span><span class="help-key">8x8 to 128x128</span></div>
+					<div class="help-item"><span>Zoom Level</span><span class="help-key">4x to 32x</span></div>
+					<div class="help-item"><span>Toggle Grid</span><span class="help-key">checkbox</span></div>
+					<div class="help-item"><span>CRT Scanlines</span><span class="help-key">checkbox</span></div>
+					<div class="help-item"><span>Auto-save</span><span class="help-key">checkbox</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Edit Transforms</div>
+					<div class="help-item"><span>Rotate 90°</span><span class="help-key">Rotate btn</span></div>
+					<div class="help-item"><span>Flip Horizontal</span><span class="help-key">Flip H btn</span></div>
+					<div class="help-item"><span>Flip Vertical</span><span class="help-key">Flip V btn</span></div>
+					<div class="help-item"><span>Invert Colors</span><span class="help-key">Invert btn</span></div>
+					<div class="help-item"><span>Convert to Palette</span><span class="help-key">To Palette btn</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Transparency</div>
+					<div class="help-item"><span>Enable Transparency</span><span class="help-key">checkbox</span></div>
+					<div class="help-item"><span>Set Target Color</span><span class="help-key">click preview</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Palettes</div>
+					<div class="help-item"><span>Commodore 64</span><span class="help-key">16 colors</span></div>
+					<div class="help-item"><span>Game Boy</span><span class="help-key">4 colors</span></div>
+					<div class="help-item"><span>NES</span><span class="help-key">54 colors</span></div>
+					<div class="help-item"><span>PICO-8</span><span class="help-key">16 colors</span></div>
+					<div class="help-item"><span>CGA / EGA / VGA</span><span class="help-key">multiple</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Mouse Controls</div>
+					<div class="help-item"><span>Left Click</span><span class="help-key">Draw</span></div>
+					<div class="help-item"><span>Right Click</span><span class="help-key">Erase</span></div>
+					<div class="help-item"><span>Drag</span><span class="help-key">Shape/Select</span></div>
+					<div class="help-item"><span>Mouse Wheel</span><span class="help-key">Zoom</span></div>
+					<div class="help-item"><span>Drag & Drop</span><span class="help-key">Import file</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Touch Controls (Mobile)</div>
+					<div class="help-item"><span>One Finger</span><span class="help-key">Draw</span></div>
+					<div class="help-item"><span>Two Fingers Pinch</span><span class="help-key">Zoom</span></div>
+				</div>
+
+				<div class="help-section">
+					<div class="help-title">Interface</div>
+					<div class="help-item"><span>Help</span><span class="help-key">H</span></div>
+					<div class="help-item"><span>Close Modals</span><span class="help-key">Escape</span></div>
+					<div class="help-item"><span>Toggle Theme</span><span class="help-key">sun btn</span></div>
+					<div class="help-item"><span>Fullscreen</span><span class="help-key">expand btn</span></div>
+				</div>
+			</div>
+			<div class="social-links">
+				<a href="https://hl-retro-game-studio.itch.io/" target="_blank" rel="noopener noreferrer" class="social-link" title="Itch.io"><i class="bi bi-controller"></i><span> Itch.io</span></a>
+				<a href="https://codepen.io/H-L-the-lessful" target="_blank" rel="noopener noreferrer" class="social-link" title="CodePen"><i class="bi bi-box-seam"></i><span> CodePen</span></a>
+				<a href="https://youtube.com/@Heingel-o4z" target="_blank" rel="noopener noreferrer" class="social-link" title="YouTube"><i class="bi bi-youtube"></i><span> YouTube</span></a>
+			</div>
+			<div class="d-flex gap-2 mt-2">
+				<button class="btn btn-retro" onclick="App.UI.closeModal('help-modal')" style="background:#888;width:100%;" aria-label="Close help" role="button">Close</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="toast" class="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+</body>
+</html>
